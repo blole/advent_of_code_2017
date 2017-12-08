@@ -51,6 +51,14 @@ fun <A,AC: List<A>> AC.combinations(r: Int): Sequence<List<A>> = buildSequence {
 }
 fun <A,AC: Iterable<A>> AC.combinations(r: Int): Sequence<List<A>> = toList().combinations(r)
 
+inline operator fun <T> List<T>.component6():  T = get(5)
+inline operator fun <T> List<T>.component7():  T = get(6)
+inline operator fun <T> List<T>.component8():  T = get(7)
+inline operator fun <T> List<T>.component9():  T = get(8)
+inline operator fun <T> List<T>.component10(): T = get(9)
+inline operator fun <T> List<T>.component11(): T = get(10)
+inline operator fun <T> List<T>.component12(): T = get(11)
+
 fun main(args: Array<String>) {
     require("ABCD".toList().combinations(2).toList().map { it.joinToString("") }.toString() == "[AB, AC, AD, BC, BD, CD]")
     require((0..3).combinations(3).toList().map { it.joinToString("") }.toString() == "[012, 013, 023, 123]")
