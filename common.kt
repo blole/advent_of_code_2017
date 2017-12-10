@@ -1,3 +1,5 @@
+package kotlinPuzzleLibrary
+
 import kotlin.coroutines.experimental.buildSequence
 
 inline fun <reified INNER> array2d(sizeOuter: Int, sizeInner: Int, noinline innerInit: (Int)->INNER): Array<Array<INNER>>
@@ -51,6 +53,39 @@ fun <A,AC: List<A>> AC.combinations(r: Int): Sequence<List<A>> = buildSequence {
 }
 fun <A,AC: Iterable<A>> AC.combinations(r: Int): Sequence<List<A>> = toList().combinations(r)
 
+
+fun <A,AC: List<A>> AC.permutations(r: Int? = null): Sequence<List<A>> = buildSequence {
+    val n: Int = this@permutations.size
+    val r = r ?: n
+    if (r > n)
+        return@buildSequence
+    var indices: MutableList<Int> = (0..(n-1)).toMutableList()
+    val cycles: MutableList<Int> = n.downTo(n-r+1).toMutableList()
+    yield(this@permutations.slice(indices.subList(0,r)))
+
+    outer@
+    while (n > 0) {
+        for (i: Int in (0..(r-1)).reversed()) {
+            cycles[i]--
+            if (cycles[i] == 0) {
+                indices = (indices.subList(0,i) + indices.subList(i+1,n) + indices.subList(i,i+1)).toMutableList()
+                cycles[i] = n-i
+            }
+            else {
+                val j = cycles[i]
+                val tmp = indices[n-j]
+                indices[n-j] = indices[i]
+                indices[i] = tmp
+                yield(this@permutations.slice(indices.subList(0,r)))
+                continue@outer
+            }
+        }
+        break
+    }
+}
+fun <A,AC: Iterable<A>> AC.permutations(r: Int? = null): Sequence<List<A>> = toList().permutations(r)
+
+
 operator fun <T> List<T>.component7():  T = get(6)
 operator fun <T> List<T>.component8():  T = get(7)
 operator fun <T> List<T>.component9():  T = get(8)
@@ -62,4 +97,6 @@ operator fun <T> List<T>.component12(): T = get(11)
 fun main(args: Array<String>) {
     require("ABCD".toList().combinations(2).toList().map { it.joinToString("") }.toString() == "[AB, AC, AD, BC, BD, CD]")
     require((0..3).combinations(3).toList().map { it.joinToString("") }.toString() == "[012, 013, 023, 123]")
+    require(("ABCD".toList().permutations(2)).toList().map { it.joinToString("") }.toString() == "[AB, AC, AD, BA, BC, BD, CA, CB, CD, DA, DB, DC]")
+    require((0..2).permutations().toList().map { it.joinToString("") }.toString() == "[012, 021, 102, 120, 201, 210]")
 }
