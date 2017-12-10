@@ -1,3 +1,5 @@
+import kotlinPuzzleLibrary.*
+
 fun main(args: Array<String>) {
     val input =
             """

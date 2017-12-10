@@ -1,3 +1,6 @@
+import kotlinPuzzleLibrary.array2dOfInt
+import kotlinPuzzleLibrary.productSelf
+
 fun main(args: Array<String>) {
     val input = 368078
 
@@ -10,7 +13,7 @@ fun main(args: Array<String>) {
 
     ///////////////
 
-    var mat = array2dOfInt(100,100)
+    var mat = array2dOfInt(100, 100)
     var part2 = 0
     mat[50][50]=1
 
