@@ -1006,35 +1006,31 @@ buw inc 559 if okl <= 1919
 """.trim()
 
     val vars: MutableMap<String, Int> = mutableMapOf()
+    Regex("[a-z]+").findAll(input).forEach { vars.put(it.value, 0) }
     var part2 = 0
 
-    outer@
     for (line in input.lines()) {
-        val (v, op, a, _, cv, cOp, ca) = line.split(" ")
+        val condition = whenRegex<Boolean>(line) {
+            ".* if (.*?) > (.+)"  then { vars[g1]!! >  d2 }
+            ".* if (.*?) < (.+)"  then { vars[g1]!! <  d2 }
+            ".* if (.*?) >= (.+)" then { vars[g1]!! >= d2 }
+            ".* if (.*?) <= (.+)" then { vars[g1]!! <= d2 }
+            ".* if (.*?) == (.+)" then { vars[g1]!! == d2 }
+            ".* if (.*?) != (.+)" then { vars[g1]!! != d2 }
+        }!!
 
-        val cVar = vars.getOrPut(cv, {0})
-        val cAmount = ca.toInt()
-        val amount = a.toInt()
+        if (condition) {
+            whenRegex(line) {
+                "(.*?) inc (.+) if .*" then { vars[g1] = vars[g1]!! + d2 }
+                "(.*?) dec (.+) if .*" then { vars[g1] = vars[g1]!! - d2 }
+            }
 
-
-        when (cOp) {
-            ">"  -> if (cVar <= cAmount) continue@outer
-            "<"  -> if (cVar >= cAmount) continue@outer
-            ">=" -> if (cVar <  cAmount) continue@outer
-            "<=" -> if (cVar >  cAmount) continue@outer
-            "==" -> if (cVar != cAmount) continue@outer
-            "!=" -> if (cVar == cAmount) continue@outer
+            val v = line.split(" ")[0]
+            part2 = Math.max(part2, vars[v]!!)
         }
-
-        when (op) {
-            "inc" -> vars[v] = vars.getOrPut(v, {0}) + amount
-            "dec" -> vars[v] = vars.getOrPut(v, {0}) - amount
-        }
-
-        part2 = Math.max(part2, vars[v]!!)
     }
 
-    val part1 = vars.values.max()
+    val part1 = vars.values.max()!!
 
     println(part1)
     println(part2)
