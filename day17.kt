@@ -9,14 +9,6 @@ fun main(args: Array<String>) {
             this.prev = prev
             this.next = next
         }
-
-        override fun toString() = buildString {
-            var a = this@Node
-            do {
-                this.append("${a.id} ")
-                a = a.next
-            } while (a != this@Node)
-        }
     }
 
     var pos = Node(0)
@@ -29,5 +21,18 @@ fun main(args: Array<String>) {
         pos = pos.next
     }
     val part1 = pos.next.id
+
+    var part2 = 0
+    var curr = 0
+    var length = 1
+    while (length <= 50000000) {
+        if (curr == 0)
+            part2 = length
+        val adding = (length-curr+1) / (steps+1) + 1
+        length += adding
+        curr = (curr+adding*(steps+1)) % length
+    }
+
     println(part1)
+    println(part2)
 }
