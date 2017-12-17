@@ -1,4 +1,5 @@
-val input =
+fun main(args: Array<String>) {
+    val input =
 """
 uglvj (99) -> ymfjt, gkpgf
 vvwrg (51)
@@ -1091,20 +1092,19 @@ wxmxkzn (73)
 gwgnf (57) -> wbntjyi, ifmgil, zeximw
 """.trim()
 
-val nodes: MutableMap<String, Node> = mutableMapOf()
-fun getNode(name: String): Node {
-    return nodes.getOrPut(name, { Node(name) } )
-}
+    data class Node(val name: String, var parent: Node? = null, var weight: Int = -1, var children: List<Node> = emptyList()) {
+        val root: Node get() = parent?.root ?: this
+        val subWeight: Int get() = children.sumBy { it.towerWeight }
+        val towerWeight: Int get() = weight + subWeight
 
-data class Node(val name: String, var parent: Node? = null, var weight: Int = -1, var children: List<Node> = emptyList()) {
-    val root: Node get() = parent?.root ?: this
-    val subWeight: Int get() = children.sumBy { it.towerWeight }
-    val towerWeight: Int get() = weight + subWeight
+        override fun toString(): String = "$name ($weight) -> ${children.joinToString { it.name }}"
+    }
 
-    override fun toString(): String = "$name ($weight) -> ${children.joinToString { it.name }}"
-}
+    val nodes: MutableMap<String, Node> = mutableMapOf()
+    fun getNode(name: String): Node {
+        return nodes.getOrPut(name, { Node(name) } )
+    }
 
-fun main(args: Array<String>) {
     var part1 = ""
     var part2 = 0
 
