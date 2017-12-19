@@ -47,40 +47,30 @@ jgz a -19
 """.trim()
 
     val instructions = input.lines()
-    fun emptyVars() = hashMapOf(*(('a'..'z').map { Pair(it,0L) }.toTypedArray()))
+    operator fun HashMap<Char,Long>.get(key: String) = key.toLongOrNull() ?: this.getOrPut(key[0], {0})
 
     var part1 = 0L
-
     run {
         var lastPlayed = 0L
         var pc = 0
-        var vars: HashMap<Char,Long> = emptyVars()
-        while (pc in instructions.indices) {
+        var vars: HashMap<Char,Long> = hashMapOf()
+        while (pc in instructions.indices && part1 == 0L) {
             whenRegex(instructions[pc]) {
-                "snd (.)"             then { lastPlayed = vars[c1]!! }
-                "set (.) ([a-z])"     then { vars[c1] = vars[c2]!! }
-                "set (.) (.+)"        then { vars[c1] = d2.toLong() }
-                "add (.) ([a-z])"     then { vars[c1] = vars[c1]!! + vars[c2]!! }
-                "add (.) (.+)"        then { vars[c1] = vars[c1]!! + d2 }
-                "mul (.) ([a-z])"     then { vars[c1] = vars[c1]!! * vars[c2]!! }
-                "mul (.) (.+)"        then { vars[c1] = vars[c1]!! * d2 }
-                "mod (.) ([a-z])"     then { vars[c1] = vars[c1]!! % vars[c2]!! }
-                "mod (.) (.+)"        then { vars[c1] = vars[c1]!! % d2 }
-                "rcv (.)"             then { if (vars[c1]!! != 0L) part1 = lastPlayed }
-                "jgz ([a-z]) ([a-z])" then { if (vars[c1]!! > 0L) pc += vars[c2]!!.toInt()-1 }
-                "jgz ([a-z]) (.+)"    then { if (vars[c1]!! > 0L) pc += d2-1 }
-                "jgz (.) ([a-z])"     then { if (d1 > 0L) pc += vars[c2]!!.toInt()-1 }
-                "jgz (.) (.+)"        then { if (d1 > 0L) pc += d2-1 }
+                "snd (.+)"      then { lastPlayed = vars[g1] }
+                "set (.) (.+)"  then { vars[c1] = vars[g2] }
+                "add (.) (.+)"  then { vars[c1] = vars[g1] + vars[g2] }
+                "mul (.) (.+)"  then { vars[c1] = vars[g1] * vars[g2] }
+                "mod (.) (.+)"  then { vars[c1] = vars[g1] % vars[g2] }
+                "rcv (.)"       then { if (vars[g1] != 0L) part1 = lastPlayed }
+                "jgz (.+) (.+)" then { if (vars[g1] >  0L) pc += vars[g2].toInt()-1 }
             }
-            if (part1 != 0L)
-                break
             pc++
         }
     }
 
     class ProgramInstance {
         var pc: Int = 0
-        val vars: HashMap<Char,Long> = emptyVars()
+        val vars: HashMap<Char,Long> = hashMapOf()
         val queue: ArrayDeque<Long> = ArrayDeque()
         var other: ProgramInstance = this
         var sent = 0
@@ -90,25 +80,13 @@ jgz a -19
                 return false
             var running = true
             whenRegex(instructions[pc]) {
-                "snd (.)"             then { other.queue.addLast(vars[c1]!!); sent++ }
-                "set (.) ([a-z])"     then { vars[c1] = vars[c2]!! }
-                "set (.) (.+)"        then { vars[c1] = d2.toLong() }
-                "add (.) ([a-z])"     then { vars[c1] = vars[c1]!! + vars[c2]!! }
-                "add (.) (.+)"        then { vars[c1] = vars[c1]!! + d2 }
-                "mul (.) ([a-z])"     then { vars[c1] = vars[c1]!! * vars[c2]!! }
-                "mul (.) (.+)"        then { vars[c1] = vars[c1]!! * d2 }
-                "mod (.) ([a-z])"     then { vars[c1] = vars[c1]!! % vars[c2]!! }
-                "mod (.) (.+)"        then { vars[c1] = vars[c1]!! % d2 }
-                "rcv (.)"             then {
-                    if (queue.isEmpty())
-                        running = false
-                    else
-                        vars[c1] = queue.removeFirst()
-                }
-                "jgz ([a-z]) ([a-z])" then { if (vars[c1]!! > 0L) pc += vars[c2]!!.toInt()-1 }
-                "jgz ([a-z]) (.+)"    then { if (vars[c1]!! > 0L) pc += d2-1 }
-                "jgz (.) ([a-z])"     then { if (d1 > 0L) pc += vars[c2]!!.toInt()-1 }
-                "jgz (.) (.+)"        then { if (d1 > 0L) pc += d2-1 }
+                "snd (.+)"      then { other.queue.addLast(vars[g1]); sent++ }
+                "set (.) (.+)"  then { vars[c1] = vars[g2] }
+                "add (.) (.+)"  then { vars[c1] = vars[g1] + vars[g2] }
+                "mul (.) (.+)"  then { vars[c1] = vars[g1] * vars[g2] }
+                "mod (.) (.+)"  then { vars[c1] = vars[g1] % vars[g2] }
+                "rcv (.)"       then { if (queue.isEmpty()) running = false else vars[c1] = queue.removeFirst() }
+                "jgz (.+) (.+)" then { if (vars[g1] > 0L) pc += vars[g2].toInt()-1 }
             }
             if (running)
                 pc++
