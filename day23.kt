@@ -52,5 +52,26 @@ jnz 1 -23
         pc++
     }
 
+
+
+    // the program translates to something like:
+"""
+for (b=108400; b<=125400; b += 17) {
+	f = 1
+	for (d=2; d<b; d++) {
+		for (e=2; e<b; e++) {
+			if (d*e == b)
+				f = 0
+		}
+	}
+	if (f == 0)
+		h++
+}
+"""
+    // and as such, part2 can be computed like:
+    val part2 = (108400..125400 step 17).filter { !it.isPrime }.count()
+
+
     println(part1)
+    println(part2)
 }
